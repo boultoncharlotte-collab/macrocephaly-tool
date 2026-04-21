@@ -1,103 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>R213 Macrocephaly Screening Tool</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-        }
-        button {
-            padding: 10px;
-            width: 100%;
-            background: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .yes { color: green; }
-        .no { color: red; }
-        .warn { color: #b36b00; }
-        .disclaimer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #555;
-            border-top: 1px solid #ccc;
-            padding-top: 15px;
-        }
-    </style>
-</head>
-<body>
+function checkMacrocephaly() {
+    const sex = document.getElementById("sex").value;
+    const height = parseFloat(document.getElementById("height").value);
+    const hc = parseFloat(document.getElementById("hc").value);
 
-<h2>R213 Macrocephaly Screening Tool</h2>
+    if (!sex || isNaN(height) || isNaN(hc)) {
+        document.getElementById("result").innerHTML =
+            "<span class='warn'>Please complete all fields.</span>";
+        document.getElementById("reportOutput").innerText = "";
+        return;
+    }
 
-<label>Sex:</label>
-<select id="sex">
-    <option value="">Select...</option>
-    <option value="Male">Male</option>
-    <option value="Female">Female</option>
-</select>
+    const ref = bushby97.find(r =>
+        r.sex === sex && height >= r.min && height <= r.max
+    );
 
-<label>Height (cm):</label>
-<input type="number" id="height" min="100" max="220">
+    if (!ref) {
+        document.getElementById("result").innerHTML =
+            "<span class='warn'>No Bushby reference available for this sex/height combination.</span>";
+        document.getElementById("reportOutput").innerText = "";
+        return;
+    }
 
-<label>Head circumference (cm):</label>
-<input type="number" id="hc" step="0.1">
+    const cutoff = ref.cutoff;
 
-<button onclick="checkMacrocephaly()">Check</button>
+    if (hc >= cutoff) {
+        document.getElementById("result").innerHTML =
+            `<span class='yes'>YES — Macrocephaly (≥97th centile)</span><br>
+             97th centile cutoff used: <strong>${cutoff} cm</strong>`;
 
-<div id="result"></div>
-<div id="reportOutput" style="margin-top:20px; font-style:italic;"></div>
+        document.getElementById("reportOutput").innerText =
+            "Adult head circumference is ≥97th centile for sex and height (macrocephaly).";
 
-<div class="disclaimer">
-⚠️ This tool is a screening aid only and must be used alongside clinical judgement and the National Test Directory.  
-Based on Bushby et al., 1992.  
-</div>
+    } else {
+        document.getElementById("result").innerHTML =
+            `<span class='no'>NO — Below 97th centile</span><br>
+             97th centile cutoff used: <strong>${cutoff} cm</strong>`;
 
-<script>
-    // Bushby reference table extracted from your spreadsheet
-    const bushby97 = [
-        { sex: "Male", min: 170, max: 179, cutoff: 62.3 },
-        { sex: "Male", min: 180, max: 189, cutoff: 62.8 },
-        { sex: "Female", min: 170, max: 179, cutoff: 60.9 }
-    ];
-
-   if (hc >= cutoff) {
-    document.getElementById("result").innerHTML =
-        `<span class='yes'>YES — Macrocephaly (≥97th centile)</span><br>
-         97th centile cutoff used: <strong>${cutoff} cm</strong>`;
-
-    // Report-read output (matches your Excel logic)
-    document.getElementById("reportOutput").innerText =
-        "Adult head circumference is ≥97th centile for sex and height (macrocephaly).";
-
-} else {
-    document.getElementById("result").innerHTML =
-        `<span class='no'>NO — Below 97th centile</span><br>
-         97th centile cutoff used: <strong>${cutoff} cm</strong>`;
-
-    // Report-read output (matches your Excel logic)
-    document.getElementById("reportOutput").innerText =
-        "Adult head circumference is <97th centile for sex and height.";
+        document.getElementById("reportOutput").innerText =
+            "Adult head circumference is <97th centile for sex and height.";
+    }
 }
-
-</script>
-
-</body>
-</html>
