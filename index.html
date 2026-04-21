@@ -63,6 +63,7 @@
 <button onclick="checkMacrocephaly()">Check</button>
 
 <div id="result"></div>
+<div id="reportOutput" style="margin-top:20px; font-style:italic;"></div>
 
 <div class="disclaimer">
 ⚠️ This tool is a screening aid only and must be used alongside clinical judgement and the National Test Directory.  
@@ -77,39 +78,25 @@ Based on Bushby et al., 1992.
         { sex: "Female", min: 170, max: 179, cutoff: 60.9 }
     ];
 
-    function checkMacrocephaly() {
-        const sex = document.getElementById("sex").value;
-        const height = parseFloat(document.getElementById("height").value);
-        const hc = parseFloat(document.getElementById("hc").value);
-        const resultDiv = document.getElementById("result");
+   if (hc >= cutoff) {
+    document.getElementById("result").innerHTML =
+        `<span class='yes'>YES — Macrocephaly (≥97th centile)</span><br>
+         97th centile cutoff used: <strong>${cutoff} cm</strong>`;
 
-        if (!sex || isNaN(height) || isNaN(hc)) {
-            resultDiv.innerHTML = "<span class='warn'>Please complete all fields.</span>";
-            return;
-        }
+    // Report-read output (matches your Excel logic)
+    document.getElementById("reportOutput").innerText =
+        "Adult head circumference is ≥97th centile for sex and height (macrocephaly).";
 
-        // Find matching reference row
-        const ref = bushby97.find(r =>
-            r.sex === sex && height >= r.min && height <= r.max
-        );
+} else {
+    document.getElementById("result").innerHTML =
+        `<span class='no'>NO — Below 97th centile</span><br>
+         97th centile cutoff used: <strong>${cutoff} cm</strong>`;
 
-        if (!ref) {
-            resultDiv.innerHTML = "<span class='warn'>No Bushby reference available for this sex/height combination.</span>";
-            return;
-        }
+    // Report-read output (matches your Excel logic)
+    document.getElementById("reportOutput").innerText =
+        "Adult head circumference is <97th centile for sex and height.";
+}
 
-        const cutoff = ref.cutoff;
-
-        if (hc >= cutoff) {
-            resultDiv.innerHTML =
-                `<span class='yes'>YES — Macrocephaly (≥97th centile)</span><br>
-                 97th centile cutoff used: <strong>${cutoff} cm</strong>`;
-        } else {
-            resultDiv.innerHTML =
-                `<span class='no'>NO — Below 97th centile</span><br>
-                 97th centile cutoff used: <strong>${cutoff} cm</strong>`;
-        }
-    }
 </script>
 
 </body>
