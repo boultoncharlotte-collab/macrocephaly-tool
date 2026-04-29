@@ -70,12 +70,22 @@ Based on Bushby et al., 1992.
 </div>
 
 <script>
-    // Bushby reference table extracted from your spreadsheet
-    const bushby97 = [
-        { sex: "Male", min: 170, max: 179, cutoff: 62.3 },
-        { sex: "Male", min: 180, max: 189, cutoff: 62.8 },
-        { sex: "Female", min: 170, max: 179, cutoff: 60.9 }
-    ];
+    
+function calculate97thCentile(sex, height) {
+    const heightCoeff = 0.08673;
+    const z97 = 1.881;
+    const sd = 1.41;
+
+    if (sex === "Male") {
+        return 42.4 + (heightCoeff * height) + (z97 * sd);
+    }
+
+    if (sex === "Female") {
+        return 41.02 + (heightCoeff * height) + (z97 * sd);
+    }
+
+    return null;
+}
 
     function checkMacrocephaly() {
         const sex = document.getElementById("sex").value;
@@ -89,27 +99,28 @@ Based on Bushby et al., 1992.
         }
 
         // Find matching reference row
-        const ref = bushby97.find(r =>
-            r.sex === sex && height >= r.min && height <= r.max
-        );
+        
+const cutoff = calculate97thCentile(sex, height);
 
-        if (!ref) {
-            resultDiv.innerHTML = "<span class='warn'>No Bushby reference available for this sex/height combination.</span>";
-            return;
-        }
+if (cutoff === null) {
+    resultDiv.innerHTML =
+        "<span class='warn'>Unable to calculate reference for this input.</span>";
+    return;
+}
 
         const cutoff = ref.cutoff;
 
-        if (hc >= cutoff) {
-            resultDiv.innerHTML =
-                `<span class='yes'>YES — Macrocephaly (≥97th centile)</span><br>
-                 97th centile cutoff used: <strong>${cutoff} cm</strong>`;
-        } else {
-            resultDiv.innerHTML =
-                `<span class='no'>NO — Below 97th centile</span><br>
-                 97th centile cutoff used: <strong>${cutoff} cm</strong>`;
-        }
-    }
+       
+if (hc >= cutoff) {
+    resultDiv.innerHTML =
+        `<span class='yes'>YES — Macrocephaly (≥97th centile)</span><br>
+         Estimated 97th centile cutoff: <strong>${cutoff.toFixed(1)} cm</strong>`;
+} else {
+    resultDiv.innerHTML =
+        `<span class='no'>NO — Below 97th centile</span><br>
+         Estimated 97th centile cutoff: <strong>${cutoff.toFixed(1)} cm</strong>`;
+}
+
 </script>
 
 </body>
