@@ -98,8 +98,7 @@ function calculate97thCentile(sex, height) {
             return;
         }
 
-        // Find matching reference row
-        
+
 const cutoff = calculate97thCentile(sex, height);
 
 if (cutoff === null) {
@@ -107,9 +106,6 @@ if (cutoff === null) {
         "<span class='warn'>Unable to calculate reference for this input.</span>";
     return;
 }
-
-        const cutoff = ref.cutoff;
-
        
 if (hc >= cutoff) {
     resultDiv.innerHTML =
@@ -120,7 +116,7 @@ if (hc >= cutoff) {
         `<span class='no'>NO — Below 97th centile</span><br>
          Estimated 97th centile cutoff: <strong>${cutoff.toFixed(1)} cm</strong>`;
 }
-
+}
 </script>
 
 </body>
